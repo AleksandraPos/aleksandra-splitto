@@ -51,4 +51,51 @@ describe('simplifyDebts', () => {
         expect(totalFromC).toBeCloseTo(12);
         expect(totalFromD).toBeCloseTo(8);
     });
+
+    it('ne plante pas et retourne [] si un créditeur existe sans débiteur (cas impossible en pratique mais robustesse)', () => {
+        const balances = { a: 5 };
+        expect(simplifyDebts(balances)).toEqual([]);
+    });
+
+    it('exclut un solde à 0 de la recherche du créditeur (le débiteur seul ne suffit pas)', () => {
+        const balances = { a: 0, b: -5 };
+        expect(simplifyDebts(balances)).toEqual([]);
+    });
+
+    it('exclut un solde à 0 de la recherche du débiteur (le créditeur seul ne suffit pas)', () => {
+        const balances = { a: 5, b: 0 };
+        expect(simplifyDebts(balances)).toEqual([]);
+    });
+
+    it('en cas d\'égalité entre deux créditeurs, garde le premier rencontré (ordre exact vérifié)', () => {
+        const balances = { a: 15, b: 15, c: -30 };
+        expect(simplifyDebts(balances)).toEqual([
+            { from: 'c', to: 'a', amount: 15 },
+            { from: 'c', to: 'b', amount: 15 },
+        ]);
+    });
+
+    it('sélectionne le vrai plus grand créditeur même s\'il n\'est pas le premier de la liste', () => {
+        const balances = { a: 10, b: 20, c: -30 };
+        expect(simplifyDebts(balances)).toEqual([
+            { from: 'c', to: 'b', amount: 20 },
+            { from: 'c', to: 'a', amount: 10 },
+        ]);
+    });
+
+    it('en cas d\'égalité entre deux débiteurs, garde le premier rencontré (ordre exact vérifié)', () => {
+        const balances = { a: 30, b: -15, c: -15 };
+        expect(simplifyDebts(balances)).toEqual([
+            { from: 'b', to: 'a', amount: 15 },
+            { from: 'c', to: 'a', amount: 15 },
+        ]);
+    });
+
+    it('sélectionne le vrai plus grand débiteur même s\'il n\'est pas le premier de la liste', () => {
+        const balances = { a: 30, b: -5, c: -25 };
+        expect(simplifyDebts(balances)).toEqual([
+            { from: 'c', to: 'a', amount: 25 },
+            { from: 'b', to: 'a', amount: 5 },
+        ]);
+    });
 });

@@ -8,6 +8,14 @@
     "src/domain/balances.ts",
     "src/domain/simplify.ts"
   ],
+  "ignorePatterns": [
+    "tests/contract",
+    "tests/integration",
+    "tests/e2e",
+    "reports",
+    ".git",
+    "node_modules"
+  ],
   "reporters": [
     "html",
     "clear-text",
