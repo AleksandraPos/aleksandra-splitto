@@ -17,4 +17,15 @@ describe('simplifyDebts', () => {
 
         expect(settlements).toEqual([{ from: 'c', to: 'a', amount: 10 }]);
     });
+
+    it('règle une dette circulaire complexe entre 4 personnes avec plusieurs settlements', () => {
+        const balances = { a: 30, b: -20, c: -10, d: 0 };
+
+        const settlements = simplifyDebts(balances);
+
+        expect(settlements).toEqual([
+            { from: 'b', to: 'a', amount: 20 },
+            { from: 'c', to: 'a', amount: 10 },
+        ]);
+    });
 });
