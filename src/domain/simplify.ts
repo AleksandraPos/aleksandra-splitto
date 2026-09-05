@@ -10,16 +10,15 @@
 import type { Balances, Settlement } from './types';
 
 export function simplifyDebts(balances: Balances): Settlement[] {
-  // On travaille sur une copie, pour ne pas modifier l'objet reçu
   const remaining: Record<string, number> = { ...balances };
   const settlements: Settlement[] = [];
 
   while (true) {
-    const creditor = findLargest(remaining, (amount) => amount > 0);
-    const debtor = findLargest(remaining, (amount) => amount < 0);
+    const creditor = findLargestCreditor(remaining);
+    const debtor = findLargestDebtor(remaining);
 
     if (!creditor || !debtor) {
-      break; // plus personne à régler
+      break;
     }
 
     const [creditorId, creditorAmount] = creditor;
@@ -36,15 +35,16 @@ export function simplifyDebts(balances: Balances): Settlement[] {
   return settlements;
 }
 
-//Trouve l'entrée [id, montant] avec le plus grand montant satisfaisant le prédicat.
-function findLargest(
-  balances: Record<string, number>,
-  predicate: (amount: number) => boolean,
-): [string, number] | undefined {
-  const candidates = Object.entries(balances).filter(([, amount]) => predicate(amount));
-  if (candidates.length === 0) return undefined;
+//Trouve le membre le plus créditeur (solde positif maximal)
+function findLargestCreditor(balances: Record<string, number>): [string, number] | undefined {
+  const creditors = Object.entries(balances).filter(([, amount]) => amount > 0);
+  if (creditors.length === 0) return undefined;
+  return creditors.reduce((largest, current) => (current[1] > largest[1] ? current : largest));
+}
 
-  return candidates.reduce((largest, current) =>
-    Math.abs(current[1]) > Math.abs(largest[1]) ? current : largest,
-  );
+//Trouve le membre le plus débiteur (solde négatif de plus grande valeur absolue)
+function findLargestDebtor(balances: Record<string, number>): [string, number] | undefined {
+  const debtors = Object.entries(balances).filter(([, amount]) => amount < 0);
+  if (debtors.length === 0) return undefined;
+  return debtors.reduce((largest, current) => (current[1] < largest[1] ? current : largest));
 }
