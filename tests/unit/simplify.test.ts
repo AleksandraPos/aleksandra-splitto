@@ -28,4 +28,27 @@ describe('simplifyDebts', () => {
             { from: 'c', to: 'a', amount: 10 },
         ]);
     });
+
+    it('règle une dette avec plusieurs créditeurs et plusieurs débiteurs', () => {
+        // a et b sont créditeurs, c et d sont débiteurs
+        const balances = { a: 15, b: 5, c: -12, d: -8 };
+
+        const settlements = simplifyDebts(balances);
+
+        // Vérifie que le nombre de settlements est minimal
+        // et que le total réglé correspond bien aux montants dus
+        expect(settlements.length).toBeLessThanOrEqual(3);
+
+        // Vérifie que chaque créditeur reçoit bien son dû au total
+        const totalToA = settlements.filter((s) => s.to === 'a').reduce((sum, s) => sum + s.amount, 0);
+        const totalToB = settlements.filter((s) => s.to === 'b').reduce((sum, s) => sum + s.amount, 0);
+        expect(totalToA).toBeCloseTo(15);
+        expect(totalToB).toBeCloseTo(5);
+
+        // Vérifie que chaque débiteur paie bien son dû au total
+        const totalFromC = settlements.filter((s) => s.from === 'c').reduce((sum, s) => sum + s.amount, 0);
+        const totalFromD = settlements.filter((s) => s.from === 'd').reduce((sum, s) => sum + s.amount, 0);
+        expect(totalFromC).toBeCloseTo(12);
+        expect(totalFromD).toBeCloseTo(8);
+    });
 });
