@@ -20,6 +20,7 @@
     "report:e2e": "playwright show-report"
   },
   "dependencies": {
+    "axios": "^1.20.0",
     "express": "^4.21.0",
     "pg": "^8.13.0"
   },
